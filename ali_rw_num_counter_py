@@ -1,0 +1,104 @@
+
+import os
+import sys
+
+data_file = r''  
+write_cnt_output_file = r'./write_cnt_'
+read_cnt_output_file = r'./read_cnt_'
+write_file_handle = None
+read_file_handle = None
+
+
+def print_info(interval: int):
+    print("count interval(ms):{}".format(interval))
+    print("write cnt output file path:{}".format(write_cnt_output_file))
+    print("read cnt output file path:{}".format(read_cnt_output_file))
+
+
+def init_file_handle():
+    global write_file_handle, read_file_handle
+    write_file_handle = open(write_cnt_output_file, 'w')
+    read_file_handle = open(read_cnt_output_file, 'w')
+
+
+def close_file_handle():
+    global write_file_handle, read_file_handle
+    write_file_handle.close()
+    read_file_handle.close()
+
+
+def process_data(interval: int):
+    global write_file_handle, read_file_handle
+
+    init_file_handle()
+    f = open(data_file, 'r')
+    interval = interval * 1000  
+    write_cnt = 0
+    read_cnt = 0
+    start_time = -1
+    next_time = -1
+    line = ""
+    field = []
+
+    line = f.readline()
+    assert line != ""
+    field = line.split(',')
+    tmp_start_time = int(field[-1])
+    mode = field[1]
+    start_time = tmp_start_time - tmp_start_time % interval
+    next_time = start_time + interval
+    if 'W' in mode:
+        write_cnt += 1
+    elif 'R' in mode:
+        read_cnt += 1
+    else:
+        print('unknown mode')
+        exit(-1)
+
+    while True:
+        while True:
+            line = f.readline()
+            if line == "":
+                break
+            field = line.split(',')
+            cur_time = int(field[-1])
+            if cur_time >= next_time:
+                break
+            mode = field[1]
+            if 'W' in mode:
+                write_cnt += 1
+            elif 'R' in mode:
+                read_cnt += 1
+            else:
+                print('unknown mode')
+                exit(-1)
+        write_file_handle.write("{}\n".format(write_cnt))
+        read_file_handle.write(str(read_cnt) + '\n')
+        write_cnt = 0
+        read_cnt = 0
+        next_time += interval
+        if line == "":
+            break
+    f.close()
+    close_file_handle()
+
+
+if __name__ == '__main__':
+    if len(sys.argv) != 3:
+        print("usage: ./counter.py interval data_file_path, interval(ms)")
+        exit(-1)
+    print("input args", sys.argv)
+    try:
+        interval = int(sys.argv[1])
+        data_file = sys.argv[2]
+    except:
+        print("parse input value failed")
+        exit(-1)
+    if not os.path.exists(data_file):
+        print("input file data path doesn't exist:{}".format(data_file))
+        exit(-1)
+    write_cnt_output_file = write_cnt_output_file + "with_zeros_" + str(interval) + 'ms'
+    read_cnt_output_file = read_cnt_output_file + "with_zeros_" + str(interval) + 'ms'
+
+    print_info(interval)
+    process_data(interval)
