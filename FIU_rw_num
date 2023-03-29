@@ -1,0 +1,92 @@
+import os
+
+pathlist = []
+homes_List = []
+mail_List = []
+web_List = []
+outputFileName = [['web_r_num.txt', 'web_w_num.txt'],
+                  ['mail_r_num.txt', 'mail_w_num.txt'],
+                  ['homes_r_num.txt', 'homes_w_num.txt'],
+                  ['fiu_r_num.txt','fiu_w_num.txt']]
+fileName = ['web', 'mail','homes' ] 
+inputPath = 'F:/Workspace/trace/FIU/'
+outputPath = 'F:/Workspace/trace/FIU/output/num/'
+
+
+def getPathInList():
+    for name in fileName:
+        countTrace = 0
+        datanames = os.listdir(inputPath + name)
+        for dataname in datanames:
+            if name == 'homes':
+                homes_List.append(dataname)
+            if name == 'mail':
+                mail_List.append(dataname)
+            if name == 'web':
+                web_List.append(dataname)
+            pathlist.append(dataname)
+            countTrace = countTrace + 1
+        print("FIU " + name + "trace  have " + str(countTrace) + " files")
+    print("FIU have " + str(len(pathlist)) + " files")
+
+
+
+def writeToText(inputList, index, rwIndex):
+    List_int = []
+    if len(inputList) != 0:
+        for i in sorted(inputList):
+            List_int.append(int(i / 1000000000))
+        dataCount = 0
+        file = open(outputPath + outputFileName[index][rwIndex], 'a')
+        fileAll = open(outputPath + outputFileName[3][rwIndex], 'a')  
+        findex= 0
+        for i in sorted(set(List_int)):
+            for j in range(findex,len(List_int)):
+                if i == List_int[j]:
+                    findex=findex+1
+                    dataCount = dataCount + 1
+            file.write(str(dataCount) + '\n')
+            fileAll.write(str(dataCount) + '\n')  
+            dataCount = 0
+
+
+def getData(datapath, index):
+    print("start reading : " + str(datapath))
+    file = open(inputPath + fileName[index] + '/' + datapath, 'r')
+    lines = file.readlines()
+    file.close()
+    print("strat compare...")
+    R = []
+    W = []
+    for i in range(0, len(lines)):
+        temp = lines[i].split(' ')
+        try:
+            if "R" == temp[5]:
+                R.append(int(temp[0]))
+            else:
+                W.append(int(temp[0]))
+        except:
+            print("Raw is null , index is:" + str(i))
+
+
+    print("strat count R...")
+    writeToText(R, index, 0)
+    print("strat count W...")
+    writeToText(W, index, 1)
+
+
+def getDataList(namelist, index):
+    count = 0
+    for name in namelist:
+        getData(name, index)
+        count = count + 1
+        print("progress " + fileName[index] + ": " + str(len(namelist)) + '/' + str(count))
+
+
+if __name__ == '__main__':
+    getPathInList()
+    getDataList(web_List, 0)
+    getDataList(mail_List, 1)
+    getDataList(homes_List, 2)
+    print("FINISH")
+
