@@ -1,0 +1,8 @@
+echo "" > all_read_time_gap.txt
+echo "" > all_write_time_gap.txt
+
+for file in `ls *.csv`; do
+	echo $file
+	cat $file | grep W | awk 'NR==1{tmp=$1}NR>1{print $1-tmp;tmp=$1}' >> all_write_time_gap.txt 
+   	cat $file | grep R | awk 'NR==1{tmp=$1}NR>1{print $1-tmp;tmp=$1}' >> all_read_time_gap.txt
+done
