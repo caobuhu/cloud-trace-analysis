@@ -1,0 +1,47 @@
+import sys
+from itertools import islice
+LUN_NUM = []
+
+
+def load_data(i):
+    file = open('201602220' + str(i) + '-LUN0.csv','r')
+    for line in islice(file,1,None):
+        a = line.split(",")
+        if a[3] == '0': 
+            num = int(a[4])
+            num = num / 512
+            LUN_NUM.append(num)   
+    file.close()
+
+
+def save_offset():
+    save_file = open('Systor17_0_num.txt','a')
+    for i in range(len(LUN_NUM)):
+        save_file.write(LUN_NUM[i] + '\n')
+    save_file.close()
+
+
+offset_count = []
+def read_offset():
+    read_file = open('Systor17_0_num.txt','r')
+    for line in read_file:
+        offset_count.append(int(line))
+    sorted_offset = sorted(offset_count)
+    file = open('bnum0.txt', 'a')
+    number = sorted_offset[0]
+    count = 0
+    for i in range(len(sorted_offset)):
+        if sorted_offset[i] == number:
+            count += 1
+        else:
+            file.write(str(count) + '\n')
+            count = 1
+            number = sorted_offset[i]
+    file.write(str(count))
+    file.close()
+
+
+if __name__ == '__main__':
+    for i in range(7,10):
+        load_data(i)
+        save_offset()
