@@ -1,0 +1,101 @@
+import os
+import numpy as np
+import pandas as pd
+from decimal import Decimal
+import threading
+
+pathlist = []  
+R = []
+W = []
+inputPath = "F:/Workspace/trace/Systor17/csv"
+outputPath = 'C:/Users/LOUHOIN/PycharmProjects/output'
+
+Rname = 'r_num.txt'
+
+
+def floor_(num, prec):
+    try:
+        i, f = str(num).split('.')
+        return f"{i}.{f[:prec]}"
+    except:
+        print("time error:" + num)
+        return float(num[:15])
+
+
+def writeToTxt(saveName, writelist):
+    saveName = outputPath + '/' + saveName
+    f = open(saveName, 'a')
+    for i in range(1, len(writelist)):
+        out = Decimal(floor_(writelist[i], 5)) - Decimal(floor_(writelist[i - 1], 5))
+        f.write(str(out) + '\n')
+
+
+def soretList(list):
+    print("start sort...")
+    sore_Array = np.array(list)  
+    sore_list_Timestamp = sore_Array[:, 0]  
+    sore_list = sorted(sore_list_Timestamp)
+    return sore_list
+
+
+def readCSVandCompare(path):
+    input = inputPath + '/' + path
+    data_csv = pd.read_csv(input, low_memory=False)
+    csv_array = np.array(data_csv)
+    R.clear()
+    W.clear()
+    print("start compare RW...")
+    for i in csv_array:
+        RW = i[2]
+        if "R" == RW:
+            R.append(i)
+        else:
+            W.append(i)
+
+
+def getPathInList():
+    datanames = os.listdir(inputPath)
+    for i in datanames:
+        pathlist.append(i)
+    print("Systor'17 trace have " + str(len(pathlist)) + " files")
+
+
+def writeCountSecound(saveName, writelist):
+    saveName = outputPath + '/' + saveName
+    sortedList=[]
+    for q in soretList(writelist):
+        try:
+            sortedList.append(int(float(q)))
+        except:
+            sortedList.append(int(float(q[:12])))
+    setList = sorted(set(sortedList))
+    f = open(saveName, 'a')  
+    Wcount = 0
+    index= 0
+    ccc=0
+    for i in setList:
+        for j in range(index,len(sortedList)):
+            ccc = ccc + 1
+            if i == sortedList[j]:
+                index=index+1
+                Wcount = Wcount + 1
+        f.write(str(Wcount) + '\n')
+        Wcount = 0
+    print(ccc)
+
+def getData():
+    count = 1
+    for ipath in pathlist:
+        print('start get ' + ipath + ' data...')
+        readCSVandCompare(ipath)
+        if len(R) != 0:
+            writeCountSecound(Rname, R)
+        if len(W) != 0:
+            writeCountSecound(Rname, W)
+        print("progress: " + str(len(pathlist)) + '/' + str(count))
+        count = count + 1
+
+
+if __name__ == '__main__':
+    getPathInList()  
+    getData()
