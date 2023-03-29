@@ -1,0 +1,91 @@
+import sys
+
+
+def load_data(file_name,id):
+    file = open(file_name,'r')
+    w_num = []
+    r_num = []
+    for line in file:
+        a = line.split(",")
+        if a[1] == 'W' and a[0] == str(id):
+            w_num.append(int(int(a[2]) / 512))
+        elif a[1] == 'R' and a[0] == str(id):
+            r_num.append(int(int(a[2]) / 512))
+
+    print("processing w...")
+    w_sorted_num = sorted(w_num)
+    w_num.clear()
+    w_count = 0
+    w_localnum = w_sorted_num[0]
+    w_num_count = []
+    for i in range(len(w_sorted_num)):
+        if w_sorted_num[i] == w_localnum:
+            w_count += 1
+        else:
+            w_num_count.append(w_count)
+            w_localnum = w_sorted_num[i]
+            w_count = 1
+    w_num_count.append(w_count)
+
+    w_save_file = open('ali_w_bnum_id' + str(id) + '.txt','a')
+    for k in range(len(w_num_count)):
+        w_save_file.write(str(w_num_count[k]))
+        w_save_file.write("\n")
+    w_save_file.close()
+    print("done w")
+
+    print("processing r...")
+    r_sorted_num = sorted(r_num)
+    r_num.clear()
+    r_count = 0
+    r_localnum = r_sorted_num[0]
+    r_num_count = []
+    for i in range(len(r_sorted_num)):
+        if r_sorted_num[i] == r_localnum:
+            r_count += 1
+        else:
+            r_num_count.append(r_count)
+            r_localnum = r_sorted_num[i]
+            r_count = 1
+    r_num_count.append(r_count)
+
+    r_save_file = open('ali_r_bnum_id' + str(id) + '.txt', 'a')
+    for k in range(len(r_num_count)):
+        r_save_file.write(str(r_num_count[k]))
+        r_save_file.write("\n")
+    r_save_file.close()
+    print("done r")
+
+    print("processing r+w...")
+    all_file = open(file_name,'r')
+    num = []
+    for line in all_file:
+        a = line.split(",")
+        if a[0] == str(id):
+            num.append(int(int(a[2]) / 512))
+    sorted_num = sorted(num)
+    num.clear()
+    count = 0
+    localnum = sorted_num[0]
+    num_count = []
+    for i in range(len(sorted_num)):
+        if sorted_num[i] == localnum:
+            count += 1
+        else:
+            num_count.append(count)
+            localnum = sorted_num[i]
+            count = 1
+    num_count.append(count)
+
+    save_file = open('ali_bnum_id' + str(id) + '.txt', 'a')
+    for k in range(len(num_count)):
+        save_file.write(str(num_count[k]))
+        save_file.write("\n")
+    save_file.close()
+    print("done")
+
+
+if __name__ == '__main__':
+    file_name = '10M.csv'
+    id = 0
+    load_data(file_name,id)
