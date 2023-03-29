@@ -1,0 +1,74 @@
+import os
+import numpy as np
+import pandas as pd
+from decimal import Decimal
+
+pathlist = []  
+R = []
+W = []
+inputPath = "C:/Users/LOUHOIN/Desktop/trace/csv"
+outputPath = 'G:/Workspace/trace/systor17out'
+
+
+def floor_(num, prec):
+    try:
+        i, f = str(num).split('.')
+        return f"{i}.{f[:prec]}"
+    except:
+        print("time error:" + num)
+        return float(num[:15])
+
+
+def writeToTxt(saveName, writelist):
+    saveName = outputPath + '/' + saveName
+    f = open(saveName, 'a')
+    for i in range(1, len(writelist)):
+        out = Decimal(floor_(writelist[i], 5)) - Decimal(floor_(writelist[i - 1], 5))
+        f.write(str(out) + '\n')
+
+
+def soretList(list):
+    sore_Array = np.array(list)  
+    sore_list_Timestamp = sore_Array[:, 0] 
+    sore_list = sorted(sore_list_Timestamp)
+    return sore_list
+
+
+def readCSVandCompare(path):
+    input = inputPath + '/' + path
+    data_csv = pd.read_csv(input, low_memory=False)
+    csv_array = np.array(data_csv)
+    for i in csv_array:
+        RW = i[2]
+        if "R" == RW:
+            R.append(i)
+        else:
+            W.append(i)
+
+
+def getPathInList():
+    datanames = os.listdir(inputPath)
+    for i in datanames:
+        pathlist.append(i)
+    print("Systor'17 trace have " + str(len(pathlist)) + " files")
+
+
+def getData():
+    count = 1
+    for ipath in pathlist:
+        print('start get ' + ipath + ' data...')
+        readCSVandCompare(ipath)
+        if len(R) != 0:
+            writeToTxt('r_int.txt', soretList(R))
+        if len(W) != 0:
+            writeToTxt('w_int.txt', soretList(W))
+
+        print("progress: " + str(len(pathlist)) + '/' + str(count))
+        count = count + 1
+        R.clear()
+        W.clear()
+
+
+if __name__ == '__main__':
+    getPathInList()  
+    getData()
