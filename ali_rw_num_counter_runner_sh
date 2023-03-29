@@ -1,0 +1,5 @@
+for i in {10,100,1000}
+do
+	echo "python3 ./counter_with_zeros.py $i io_traces.csv\n"
+	python3 ./counter_with_zeros.py $i io_traces.csv &
+done
