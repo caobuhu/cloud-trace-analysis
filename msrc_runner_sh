@@ -1,0 +1,4 @@
+for file in `ls *.csv`
+do
+	python3 counter.py 1000 $file &
+done
