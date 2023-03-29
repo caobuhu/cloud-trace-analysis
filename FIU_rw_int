@@ -1,0 +1,92 @@
+import os
+
+pathlist_web = []
+pathlist_mail = []
+pathlist_homes= []
+
+R_web = []
+W_web = []
+R_mail = []
+W_mail = []
+R_homes = []
+W_homes = []
+
+inputPath_web = 'F:/Workspace/trace/FIU/web/'
+inputPath_mail = 'F:/Workspace/trace/FIU/mail/'
+inputPath_homes = 'F:/Workspace/trace/FIU/homes/'
+outputPath = 'F:/Workspace/trace/FIU/output/int/'
+
+
+def getPathInList(inPath,pathlist):
+    datanames = os.listdir(inPath)
+    for i in datanames:
+        pathlist.append(i)
+    print("FIU "+inPath+" trace have " + str(len(pathlist)) + " files")
+
+
+def wtx(saveName, writelist):
+    nullc = 0
+    saveName = outputPath + saveName  
+    print("start write to " + saveName)
+    f = open(saveName, 'a')
+    for i in range(1, len(writelist)):
+        out = writelist[i] - writelist[i - 1]
+        fout = out / 1000000000
+        f.write(str(format(fout, ".9f")) + '\n')
+    print("zereTime Count: " + str(nullc))
+
+
+def getData(datapath,RS,WS,inputPath,outWname,outRname):
+    print("start reading : " + str(datapath))
+    R = []
+    W = []
+    file = open(inputPath + datapath, 'r')
+    lines = file.readlines()
+    file.close()
+    print("strat compare...")
+    for i in range(0, len(lines)):
+        temp = lines[i].split(' ')
+        try:
+            if "R" == temp[5]:
+                R.append(int(temp[0]))
+            else:
+                W.append(int(temp[0]))
+        except:
+            print("Raw is null , index is:" + str(i))
+
+    print("strat sorted...")
+    if len(W) != 0:
+        WS = sorted(W)
+    if len(R) != 0:
+        RS = sorted(R)
+
+    wtx(outWname, WS)
+    wtx('fiu_w_int.txt', WS)
+    wtx(outRname, RS)
+    wtx('fiu_r_int.txt', RS)
+
+
+if __name__ == '__main__':
+    getPathInList(inputPath_mail,pathlist_mail)
+    getPathInList(inputPath_web, pathlist_web)
+    getPathInList(inputPath_homes, pathlist_homes)
+    count = 1
+    for i in pathlist_web:
+        print("progress: " + str(len(pathlist_web)) + '/' + str(count))
+        getData(i,R_web,W_web,inputPath_web,'web_w_int.txt','web_r_int.txt')
+        count = count + 1
+
+    count = 1
+    for i in pathlist_mail:
+        print("progress: " + str(len(pathlist_mail)) + '/' + str(count))
+        getData(i,R_mail,W_mail,inputPath_mail,'mail_w_int.txt','mail_r_int.txt')
+        count = count + 1
+
+    count = 1
+    for i in pathlist_homes:
+        print("progress: " + str(len(pathlist_homes)) + '/' + str(count))
+        getData(i, R_homes, W_homes, inputPath_homes,'homes_w_int.txt','homes_r_int.txt')
+        count = count + 1
+
+
+
