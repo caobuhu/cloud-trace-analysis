@@ -1,0 +1,45 @@
+import sys
+
+
+def load_data():
+    msrc_d = []
+    file = open('CAM-02-SRV-lvm4.csv','r')
+    print(file.name)
+    for line in file:
+        a = line.split(",")
+        msrc_d.append(a[4])
+    file.close()
+
+    return msrc_d
+
+
+def save_data():
+    save_msrc = load_data()
+    save_file = open('msrc_lvm4.txt','a')
+    for k in range(len(save_msrc)):
+        save_file.write(save_msrc[k] + '\n')
+    save_file.close()
+
+
+def read_offset():
+    offset_num = []
+    read_file = open('msrc_lvm0.txt','r')
+    for line in read_file:
+        offset_num.append(int(line))
+    sorted_offset = sorted(offset_num)
+    file = open('msrc0_bnum.txt','a')
+    number = sorted_offset[0]
+    count = 0
+    for i in range(len(sorted_offset)):
+        if sorted_offset[i] == number:
+            count += 1
+        else:
+            file.write(str(count) + '\n')
+            count = 1
+            number = sorted_offset[i]
+    file.write(str(count))
+    file.close()
+
+
+if __name__ == '__main__':
+    read_offset()
