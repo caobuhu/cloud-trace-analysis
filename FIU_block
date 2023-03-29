@@ -1,0 +1,28 @@
+
+
+
+def conbine(i, j):
+    count = []
+    try:
+        file = open('fiu_' + str(i) + '&' + str(j) + '_countnum.txt', 'r')
+        for line in file:
+            count.append(int(line))
+        print(file.name)
+    except:
+        j = j + 1
+    return count
+
+
+def save_count():
+    for i in range(0,1):
+        save_file = open('fiu_' + str(i) + '_all_count.txt', 'a')
+        for j in range(0,167):
+            count = conbine(i,j)
+            for k in range(len(count)):
+                save_file.write(str(count[k]))
+                save_file.write("\n")
+        save_file.close()
+
+
+if __name__ == '__main__':
+    save_count()
